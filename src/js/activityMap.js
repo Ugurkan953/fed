@@ -86,7 +86,6 @@ $(document).ready(function () {
 		* Loops through each object in Array and puts them on the map according to lat & lng
 	*/
 	function setMapMarkers(aLocationsObj, bMap){
-		
 		const locations = [
 			    
 	    ];
@@ -133,6 +132,7 @@ $(document).ready(function () {
 		        }
 		    })(marker, i));
 	    }
+
 	}
 	
 });
