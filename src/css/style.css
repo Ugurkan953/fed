@@ -1,0 +1,49 @@
+#alLChildrenActivities, #allActivities{
+	margin:25px 0;
+	padding: 25px 0;
+	background-color:#cacaca;
+	float:left;
+	width:100%;
+}
+#allChildrenActivities section article,
+#allActivities section article{
+	float:left;
+	width:22%;
+	margin: 0 1%;
+	min-height:275px;
+	
+}
+#allActivities section::before{
+	content:"Alle normale activiteiten";
+	font-size:30px;
+	color:#fff;
+	display:block;
+	margin-bottom:25px;
+}
+#allChildrenActivities section::before{
+	content:"Alle kinder activiteiten";
+	font-size:30px;
+	color:#fff;
+	display:block;
+	margin-bottom:25px;
+}
+#dropdownActivities{
+	margin: 50px 0;
+	float:left;
+	width:100%;
+}
+#dropdownActivities section{
+	width:100%;
+}
+#dropdownActivities select{
+	margin:0px auto;
+}
+ul{
+	padding:0px;
+	list-style-type: none;
+}
+
+#map{
+	display:block;
+	float:none;
+}

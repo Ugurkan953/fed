@@ -1,0 +1,54 @@
+<html>
+	<head>
+		<script src="http://maps.google.com/maps/api/js?sensor=false" type="text/javascript"></script>
+		<link rel="stylesheet" type="text/css" href="src/css/style.css">
+	</head>
+	<body>
+		
+		<div id="map" style="width: 500px; height: 400px;"></div>
+		<div id="alLChildrenActivities">
+			
+		</div>
+		<div id="dropdownActivities"></div>
+		<div id="allActivities"></div>
+		
+
+		<script id="activityElement" type="text/template">
+			<a href="<%= url %>">
+				<img src="<%= thumbnail %>" class="image"/>
+			</a>
+			<ul>
+				<li class="activityInfo"><strong>Name:</strong> <%= title %></li>
+				<% _.each(provinces, function(provinces){ %>
+					<li class="activityInfo"><strong>Location:</strong> <%= _.escape(provinces.name) %></li>
+				<% }); %>
+				<% _.each(audiences, function(audiences){ %>
+					<li class="activityInfo"><strong>Doelgroep:</strong> <%= _.escape(audiences.name) %></li>
+				<% }); %>
+
+				<li class="activityInfo"><strong>Lat:</strong> <%= location.lat %></li>
+				<li class="activityInfo"><strong>Long:</strong> <%= location.lng %></li>
+			</ul>
+		</script>
+
+		<script id="dropdownElement" type="text/template">	
+			<select id="locations">
+				<option value="all">Selecteer uw provincie</option>
+			<%
+			collection.each((model) => {
+				model = model.toJSON();
+			%>
+				<option value="<%= _.escape(model.provinces[0].id) %>"> <%= _.escape(model.provinces[0].name) %> </option>
+			<% 
+			}); 
+			%>
+			</select>
+		</script>
+
+
+		<script src="dist/libs/jquery.js"></script>
+		<script src="dist/libs/underscore.js"></script>
+		<script src="dist/libs/backbone.js"></script>
+		<script src="dist/bundle.js"></script>
+	</body>
+</html>
