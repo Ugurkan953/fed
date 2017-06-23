@@ -104,36 +104,6 @@ exports.default = singleActivity;
 Object.defineProperty(exports, "__esModule", {
 	value: true
 });
-/**
-	* Represents a Backbone model called userLocationModel.
-	* @model
-	* contains default value for model
-*/
-var userLocationModel = Backbone.Model.extend({
-
-	idAttribute: 'uid',
-	defaults: {
-		ip: "",
-		lat: "51.9247772",
-		lng: "4.4759085",
-		city: "Rotterdam",
-		type: "userLocation"
-	},
-	url: "http://ipinfo.io"
-});
-
-exports.default = userLocationModel;
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
 
 var _singleActivityModel = __webpack_require__(0);
 
@@ -174,6 +144,36 @@ var ActivitiesCollection = Backbone.Collection.extend({
     	* AddMarker function fetches collection and returns lat & lng of models 
     */
 exports.default = ActivitiesCollection;
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+/**
+	* Represents a Backbone model called userLocationModel.
+	* @model
+	* contains default value for model
+*/
+var userLocationModel = Backbone.Model.extend({
+
+	idAttribute: 'uid',
+	defaults: {
+		ip: "",
+		lat: "51.9247772",
+		lng: "4.4759085",
+		city: "Rotterdam",
+		type: "userLocation"
+	},
+	url: "http://ipinfo.io"
+});
+
+exports.default = userLocationModel;
 
 /***/ }),
 /* 3 */
@@ -12133,6 +12133,11 @@ var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;//     Underscor
 "use strict";
 
 
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; /** 
+                                                                                                                                                                                                                                                                              	* Import all needed files (models/collections/views) 
+                                                                                                                                                                                                                                                                              */
+
+
 var _router = __webpack_require__(3);
 
 var _router2 = _interopRequireDefault(_router);
@@ -12141,15 +12146,15 @@ var _singleActivityModel = __webpack_require__(0);
 
 var _singleActivityModel2 = _interopRequireDefault(_singleActivityModel);
 
-var _userLocationModel = __webpack_require__(1);
+var _userLocationModel = __webpack_require__(2);
 
 var _userLocationModel2 = _interopRequireDefault(_userLocationModel);
 
-var _allActivities = __webpack_require__(2);
+var _allActivities = __webpack_require__(1);
 
 var _allActivities2 = _interopRequireDefault(_allActivities);
 
-var _childrenActivities = __webpack_require__(17);
+var _childrenActivities = __webpack_require__(11);
 
 var _childrenActivities2 = _interopRequireDefault(_childrenActivities);
 
@@ -12157,17 +12162,20 @@ var _allActivitiesView = __webpack_require__(4);
 
 var _allActivitiesView2 = _interopRequireDefault(_allActivitiesView);
 
-var _allDropdownView = __webpack_require__(16);
+var _allDropdownView = __webpack_require__(13);
 
 var _allDropdownView2 = _interopRequireDefault(_allDropdownView);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 $(document).ready(function () {
+	var googleApiKey = "AIzaSyC3iWkoo28vL3Psj7ZgS8b-U5vqMfpZvIw";
+
 	var aLocationsObj = [];
 	var bMap = false;
 
 	var user = new _userLocationModel2.default();
+
 	/**
  	* Fetching user Model, on success pushing result into array and calling for setMapMarkers with params
  */
@@ -12221,7 +12229,6 @@ $(document).ready(function () {
 					});
 				}
 			});
-			setMapMarkers(aLocationsObj, bMap);
 		},
 		error: function error(data) {
 			console.log("error");
@@ -12240,52 +12247,64 @@ $(document).ready(function () {
  	* Loops through each object in Array and puts them on the map according to lat & lng
  */
 	function setMapMarkers(aLocationsObj, bMap) {
-		var locations = [];
 
-		$.each(aLocationsObj, function (k, v) {
-			locations.push(['' + v.name + '', v.lat, v.lng, v.type]);
-		});
+		if ((typeof google === 'undefined' ? 'undefined' : _typeof(google)) === 'object' && _typeof(google.maps) === 'object') {
+			var map;
+			var data;
 
-		if (bMap == false) {
-			var map = new google.maps.Map(document.getElementById('map'), {
-				zoom: 7,
-				center: new google.maps.LatLng(52.2183036, 5.0073012),
-				mapTypeId: google.maps.MapTypeId.ROADMAP
+			(function () {
+
+				var locations = [];
+
+				$.each(aLocationsObj, function (k, v) {
+					locations.push(['' + v.name + '', v.lat, v.lng, v.type]);
+				});
+
+				if (bMap == false) {
+					map = new google.maps.Map(document.getElementById('map'), {
+						zoom: 7,
+						center: new google.maps.LatLng(52.2183036, 5.0073012)
+					});
+				}
+				var infowindow = new google.maps.InfoWindow();
+				var marker = void 0,
+				    i = void 0;
+
+				var icon = "";
+				for (i = 0; i < locations.length; i++) {
+					data = locations[i];
+
+
+					switch (data[3]) {
+						case "userLocation":
+							icon = "green";
+							break;
+						default:
+							icon = "red";
+					}
+					icon = "http://maps.google.com/mapfiles/ms/icons/" + icon + ".png";
+					marker = new google.maps.Marker({
+						position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+						map: map,
+						icon: new google.maps.MarkerImage(icon)
+					});
+
+					google.maps.event.addListener(marker, 'click', function (marker, i) {
+						return function () {
+							infowindow.setContent(locations[i][0]);
+							infowindow.open(map, marker);
+						};
+					}(marker, i));
+				}
+			})();
+		} else {
+			var key = googleApiKey ? "&key=" + googleApiKey : "";
+			$.getScript("https://maps.googleapis.com/maps/api/js?v=3&libraries=places" + key).done(function () {
+				setMapMarkers(aLocationsObj);
 			});
-		}
-		var infowindow = new google.maps.InfoWindow();
-		var marker = void 0,
-		    i = void 0;
-
-		var icon = "";
-		for (i = 0; i < locations.length; i++) {
-			var data = locations[i];
-
-			switch (data[3]) {
-				case "userLocation":
-					icon = "green";
-					break;
-				default:
-					icon = "red";
-			}
-			icon = "http://maps.google.com/mapfiles/ms/icons/" + icon + ".png";
-			marker = new google.maps.Marker({
-				position: new google.maps.LatLng(locations[i][1], locations[i][2]),
-				map: map,
-				icon: new google.maps.MarkerImage(icon)
-			});
-
-			google.maps.event.addListener(marker, 'click', function (marker, i) {
-				return function () {
-					infowindow.setContent(locations[i][0]);
-					infowindow.open(map, marker);
-				};
-			}(marker, i));
 		}
 	}
-}); /** 
-    	* Import all needed files (models/collections/views) 
-    */
+});
 
 /***/ }),
 /* 9 */
@@ -14222,11 +14241,11 @@ $(document).ready(function () {
 "use strict";
 
 
-__webpack_require__(2);
+__webpack_require__(1);
 
 __webpack_require__(0);
 
-__webpack_require__(1);
+__webpack_require__(2);
 
 __webpack_require__(3);
 
@@ -14245,38 +14264,69 @@ var _ = __webpack_require__(7);
 var Backbone = __webpack_require__(9);
 
 /***/ }),
-/* 11 */,
-/* 12 */,
-/* 13 */,
-/* 14 */
-/***/ (function(module, exports) {
+/* 11 */
+/***/ (function(module, exports, __webpack_require__) {
 
-var g;
+"use strict";
 
-// This works in non-strict mode
-g = (function() {
-	return this;
-})();
 
-try {
-	// This works if eval is allowed (see CSP)
-	g = g || Function("return this")() || (1,eval)("this");
-} catch(e) {
-	// This works if the window reference is available
-	if(typeof window === "object")
-		g = window;
-}
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
 
-// g can still be undefined, but nothing to do about it...
-// We return undefined, instead of nothing here, so it's
-// easier to handle this case. if(!global) { ...}
+var _singleChildrenActivityModel = __webpack_require__(12);
 
-module.exports = g;
+var _singleChildrenActivityModel2 = _interopRequireDefault(_singleChildrenActivityModel);
 
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var childrenActivityCollection = Backbone.Collection.extend({
+
+	url: "https://www.nemokennislink.nl/api/activiteiten.json?sleutel=btkpnok5qy&audience=1",
+	model: _singleChildrenActivityModel2.default,
+	initialize: function initialize(model, options) {},
+
+	parse: function parse(data) {
+		return data.results;
+	}
+}); /**
+    	* Creating new Backbone collection
+    	* Collection url contains API url, Backbone makes auto call to url
+    	* Model: lets collection now which model is part of it
+    	* Parse function returns data to html 
+    */
+exports.default = childrenActivityCollection;
 
 /***/ }),
-/* 15 */,
-/* 16 */
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+	value: true
+});
+/**
+	* Represents a Backbone model called singleChildrenActivity.
+	* @model
+	* contains default value for model
+*/
+var singleChildrenActivity = Backbone.Model.extend({
+
+	defaults: {
+		location: "",
+		img: "img/placeholder.png",
+		link: "",
+		audience: "Kinderen"
+	}
+
+});
+
+exports.default = singleChildrenActivity;
+
+/***/ }),
+/* 13 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -14328,66 +14378,31 @@ var allDropdownView = Backbone.View.extend({
 exports.default = allDropdownView;
 
 /***/ }),
-/* 17 */
-/***/ (function(module, exports, __webpack_require__) {
+/* 14 */
+/***/ (function(module, exports) {
 
-"use strict";
+var g;
 
+// This works in non-strict mode
+g = (function() {
+	return this;
+})();
 
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
+try {
+	// This works if eval is allowed (see CSP)
+	g = g || Function("return this")() || (1,eval)("this");
+} catch(e) {
+	// This works if the window reference is available
+	if(typeof window === "object")
+		g = window;
+}
 
-var _singleChildrenActivityModel = __webpack_require__(18);
+// g can still be undefined, but nothing to do about it...
+// We return undefined, instead of nothing here, so it's
+// easier to handle this case. if(!global) { ...}
 
-var _singleChildrenActivityModel2 = _interopRequireDefault(_singleChildrenActivityModel);
+module.exports = g;
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-var childrenActivityCollection = Backbone.Collection.extend({
-
-	url: "https://www.nemokennislink.nl/api/activiteiten.json?sleutel=btkpnok5qy&audience=1",
-	model: _singleChildrenActivityModel2.default,
-	initialize: function initialize(model, options) {},
-
-	parse: function parse(data) {
-		return data.results;
-	}
-}); /**
-    	* Creating new Backbone collection
-    	* Collection url contains API url, Backbone makes auto call to url
-    	* Model: lets collection now which model is part of it
-    	* Parse function returns data to html 
-    */
-exports.default = childrenActivityCollection;
-
-/***/ }),
-/* 18 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-	value: true
-});
-/**
-	* Represents a Backbone model called singleChildrenActivity.
-	* @model
-	* contains default value for model
-*/
-var singleChildrenActivity = Backbone.Model.extend({
-
-	defaults: {
-		location: "",
-		img: "img/placeholder.png",
-		link: "",
-		audience: "Kinderen"
-	}
-
-});
-
-exports.default = singleChildrenActivity;
 
 /***/ })
 /******/ ]);

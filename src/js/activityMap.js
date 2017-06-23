@@ -9,11 +9,16 @@ import childrenActivityCollection from './collections/childrenActivities.js';
 import allActivitiesView from './views/allActivitiesView.js';
 import allDropdownView from './views/allDropdownView.js';
 
+
+
 $(document).ready(function () {
+	let googleApiKey = "AIzaSyC3iWkoo28vL3Psj7ZgS8b-U5vqMfpZvIw";
+
 	const aLocationsObj = [];
 	let bMap = false;
 
 	let user = new userLocationModel();
+
 	/**
 		* Fetching user Model, on success pushing result into array and calling for setMapMarkers with params
 	*/
@@ -67,7 +72,6 @@ $(document).ready(function () {
 	    			});
 	    		}                    
 	    	});
-	    	setMapMarkers(aLocationsObj, bMap);
 	    },
 	    error : function(data) {
 	    	console.log("error");
@@ -86,53 +90,61 @@ $(document).ready(function () {
 		* Loops through each object in Array and puts them on the map according to lat & lng
 	*/
 	function setMapMarkers(aLocationsObj, bMap){
-		const locations = [
-			    
-	    ];
 
-		$.each(aLocationsObj, function (k, v) {
-		    locations.push([
-		    	''+v.name +'', v.lat , v.lng, v.type
-		    ]);
-		});
+		if (typeof google === 'object' && typeof google.maps === 'object') {
 
-		if(bMap == false){
-		    var map = new google.maps.Map(document.getElementById('map'), {
-		      zoom: 7,
-		      center: new google.maps.LatLng(52.2183036,5.0073012),
-		      mapTypeId: google.maps.MapTypeId.ROADMAP
-		    });
-	    }
-	    let infowindow = new google.maps.InfoWindow();
-		let marker, i;
+			const locations = [];
 
-		let icon = "";
-		for (i = 0; i < locations.length; i++) {  	
-			var data = locations[i];
-			
-	        switch (data[3]){
-	            case "userLocation":
-	                icon = "green";
-	                break;
-	            default:
-	            	icon = "red";
-	        }
-	        icon = "http://maps.google.com/mapfiles/ms/icons/" + icon + ".png";
-	        marker = new google.maps.Marker({
-	        	position: new google.maps.LatLng(locations[i][1], locations[i][2]),
-	        	map: map,
-	        	icon: new google.maps.MarkerImage(icon)
-	      	});
-	      	
+			$.each(aLocationsObj, function (k, v) {
+			    locations.push([
+			    	''+v.name +'', v.lat , v.lng, v.type
+			    ]);
+			});
 
-		    google.maps.event.addListener(marker, 'click', (function(marker, i) {
-		        return function() {
-		          infowindow.setContent(locations[i][0]);
-		          infowindow.open(map, marker);
+			if(bMap == false){
+			    var map = new google.maps.Map(document.getElementById('map'), {
+			      zoom: 7,
+			      center: new google.maps.LatLng(52.2183036,5.0073012)
+			    });
+		    }
+		    let infowindow = new google.maps.InfoWindow();
+			let marker, i;
+
+			let icon = "";
+			for (i = 0; i < locations.length; i++) {  	
+				var data = locations[i];
+				
+		        switch (data[3]){
+		            case "userLocation":
+		                icon = "green";
+		                break;
+		            default:
+		            	icon = "red";
 		        }
-		    })(marker, i));
-	    }
+		        icon = "http://maps.google.com/mapfiles/ms/icons/" + icon + ".png";
+		        marker = new google.maps.Marker({
+		        	position: new google.maps.LatLng(locations[i][1], locations[i][2]),
+		        	map: map,
+		        	icon: new google.maps.MarkerImage(icon)
+		      	});
+		      	
 
+			    google.maps.event.addListener(marker, 'click', (function(marker, i) {
+			        return function() {
+			          infowindow.setContent(locations[i][0]);
+			          infowindow.open(map, marker);
+			        }
+			    })(marker, i));
+		    }
+
+			
+		}else{
+			var key = googleApiKey ? "&key=" + googleApiKey : "";
+	        $.getScript("https://maps.googleapis.com/maps/api/js?v=3&libraries=places" + key)
+	        .done(function () {
+	                setMapMarkers(aLocationsObj);
+	       	});
+	   	}	
 	}
-	
+
 });
